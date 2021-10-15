@@ -5,7 +5,7 @@
 import cv2
 import numpy as np
 import subprocess as sp
-from ...MAMEToolkit.sf_environment import Environment
+import lib.MAMEToolkit.src.MAMEToolkit.sf_environment.Environment as Environment
 
 
 class Monitor:
@@ -32,7 +32,7 @@ def process_frame(frame):
 
 
 class StreetFighterEnv(object):
-    def __init__(self, index, monitor = None):
+    def __init__(self, index, monitor=None):
         roms_path = "roms/"
         self.env = Environment("env{}".format(index), roms_path)
         if monitor:
@@ -42,8 +42,8 @@ class StreetFighterEnv(object):
         self.env.start()
 
     def step(self, action):
-        move_action = action//10
-        attack_action = action%10
+        move_action = action // 10
+        attack_action = action % 10
         frames, reward, round_done, stage_done, game_done = self.env.step(move_action, attack_action)
         if self.monitor:
             for frame in frames:
@@ -57,7 +57,7 @@ class StreetFighterEnv(object):
             reward = 25
         elif game_done:
             reward = -50
-        reward *= (1+(self.env.stage-1)/10)
+        reward *= (1 + (self.env.stage - 1) / 10)
         reward /= 10
         return frames, reward, round_done, stage_done, game_done
 
@@ -69,6 +69,7 @@ class StreetFighterEnv(object):
         elif round_done:
             self.env.next_round()
         return np.zeros((1, 3, 168, 168), dtype=np.float32)
+
 
 def create_train_env(index, output_path=None):
     num_inputs = 3
