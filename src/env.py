@@ -5,7 +5,7 @@
 import cv2
 import numpy as np
 import subprocess as sp
-from MAMEToolkit.sf_environment import Environment
+from ...MAMEToolkit.sf_environment import Environment
 
 
 class Monitor:
