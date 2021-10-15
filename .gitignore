@@ -1,0 +1,13 @@
+.idea
+*__pycache__*
+binary/
+roms/*
+build
+dist
+MAMEToolkit-**
+MAMEToolkit.egg-info
+temp
+wheelhouse
+mame
+profile.md
+venv
