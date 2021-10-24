@@ -1,3 +1,6 @@
 [submodule "lib/MAMEToolkit"]
 	path = lib/MAMEToolkit
 	url = https://github.com/nbovee/MAMEToolkit
+[submodule "lib/MAME"]
+	path = lib/MAME
+	url = https://github.com/nbovee/MAME
