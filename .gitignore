@@ -1,7 +1,7 @@
 .idea
 *__pycache__*
 binary/
-roms/*
+roms/
 build
 dist
 MAMEToolkit-**
@@ -11,3 +11,4 @@ wheelhouse
 mame
 profile.md
 venv
+trained_models
