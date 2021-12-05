@@ -42,8 +42,8 @@ class StreetFighterEnv(object):
         self.env.start()
 
     def step(self, action):
-        move_action = action // 10
-        attack_action = action % 10
+        move_action = action / 10  # may not be valid not that there are over 99 actions
+        attack_action = action % 10  # over 10 moves but still only 10 attacks
         frames, reward, round_done, stage_done, game_done = self.env.step(move_action, attack_action)
         if self.monitor:
             for frame in frames:
@@ -52,7 +52,7 @@ class StreetFighterEnv(object):
             frames = np.concatenate([process_frame(frame) for frame in frames], 0)[None, :, :, :].astype(np.float32)
         else:
             frames = np.zeros((1, 3, 168, 168), dtype=np.float32)
-        reward = reward["P1"]
+        reward = reward["P1"] # change for side switch
         if stage_done:
             reward = 25
         elif game_done:
@@ -72,8 +72,8 @@ class StreetFighterEnv(object):
 
 
 def create_train_env(index, output_path=None):
-    num_inputs = 3
-    num_actions = 90
+    num_inputs = 3  # RAISE FOR NEW INPUTS
+    num_actions = 130  # 90 PREVIOUS
     if output_path:
         monitor = Monitor(384, 224, output_path)
     else:
