@@ -42,7 +42,7 @@ class StreetFighterEnv(object):
         self.env.start()
 
     def step(self, action):
-        move_action = action / 10  # may not be valid not that there are over 99 actions
+        move_action = action // 10  # may not be valid not that there are over 99 actions
         attack_action = action % 10  # over 10 moves but still only 10 attacks
         frames, reward, round_done, stage_done, game_done = self.env.step(move_action, attack_action)
         if self.monitor:

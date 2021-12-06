@@ -43,6 +43,7 @@ class ActorCritic(nn.Module):
                 nn.init.constant_(module.bias_ih, 0)
                 nn.init.constant_(module.bias_hh, 0)
 
+    # include new inputs here
     def forward(self, x, hx, cx):
         x = self.conv(x)
         hx, cx = self.lstm(x.view(x.size(0), -1), (hx, cx))
@@ -73,6 +74,7 @@ class IntrinsicCuriosityModule(nn.Module):
                 # nn.init.kaiming_uniform_(module.weight)
                 nn.init.constant_(module.bias, 0)
 
+    # include new inputs here
     def forward(self, state, next_state, action):
         state_ft = self.conv(state)
         next_state_ft = self.conv(next_state)

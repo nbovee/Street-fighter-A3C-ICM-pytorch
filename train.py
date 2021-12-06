@@ -26,7 +26,7 @@ def get_args():
     parser.add_argument('--beta', type=float, default=0.2, help='curiosity coefficient')
     parser.add_argument("--num_local_steps", type=int, default=50)
     parser.add_argument("--num_global_steps", type=int, default=1e8)
-    parser.add_argument("--num_processes", type=int, default=3)
+    parser.add_argument("--num_processes", type=int, default=1)
     parser.add_argument("--save_interval", type=int, default=500, help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=500, help="Maximum repetition steps in test phase")
     parser.add_argument("--log_path", type=str, default="tensorboard/a3c_icm_street_fighter")
