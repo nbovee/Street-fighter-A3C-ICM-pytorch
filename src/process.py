@@ -59,6 +59,8 @@ def local_train(index, opt, global_model, global_icm, optimizer, save=False):
         entropies = []
         inv_losses = []
         fwd_losses = []
+        #CHANGE add state queue to simulate reaction time
+
 
         for _ in range(opt.num_local_steps):
             curr_step += 1
