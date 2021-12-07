@@ -44,8 +44,8 @@ def train(opt):
     if not os.path.isdir(opt.saved_path):
         os.makedirs(opt.saved_path)
     mp = _mp.get_context("spawn")
-    global_model = ActorCritic(num_inputs=3, num_actions=130)
-    global_icm = IntrinsicCuriosityModule(num_inputs=3, num_actions=130)
+    global_model = ActorCritic(num_inputs=1, num_actions=90) #change back to 130 later
+    global_icm = IntrinsicCuriosityModule(num_inputs=1, num_actions=90)
     if opt.use_gpu:
         global_model.cuda()
         global_icm.cuda()

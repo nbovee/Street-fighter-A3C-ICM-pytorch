@@ -24,8 +24,9 @@ class Monitor:
 
 def process_frame(frame):
     if frame is not None:
+        #CHECK HERE
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-        frame = cv2.resize(frame, (168, 168))[None, :, :] / 255.
+        frame = cv2.resize(frame, (168, 168))[None, :, :] / 255. # expected size
         return frame
     else:
         return np.zeros((1, 168, 168))
@@ -49,9 +50,10 @@ class StreetFighterEnv(object):
             for frame in frames:
                 self.monitor.record(frame)
         if not (round_done or stage_done or game_done):
+            temp = np.shape(frames)
             frames = np.concatenate([process_frame(frame) for frame in frames], 0)[None, :, :, :].astype(np.float32)
         else:
-            frames = np.zeros((1, 3, 168, 168), dtype=np.float32)
+            frames = np.zeros((self.env.frames_per_step, 1, 168, 168), dtype=np.float32) # previously 1 x 3 x 168 x 168 black images
         reward = reward["P1"] # change for side switch
         if stage_done:
             reward = 25
@@ -68,12 +70,12 @@ class StreetFighterEnv(object):
             self.env.next_stage()
         elif round_done:
             self.env.next_round()
-        return np.zeros((1, 3, 168, 168), dtype=np.float32)
+        return np.zeros((self.env.frames_per_step, 1, 168, 168), dtype=np.float32)
 
 
 def create_train_env(index, output_path=None):
-    num_inputs = 3  # RAISE FOR NEW INPUTS
-    num_actions = 130  # 90 PREVIOUS
+    num_inputs = 1  # RAISE FOR NEW INPUTS
+    num_actions = 90  # 90 PREVIOUS 130 CURRENT
     if output_path:
         monitor = Monitor(384, 224, output_path)
     else:
