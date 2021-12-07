@@ -26,7 +26,7 @@ def get_args():
     parser.add_argument('--beta', type=float, default=0.2, help='curiosity coefficient')
     parser.add_argument("--num_local_steps", type=int, default=50)
     parser.add_argument("--num_global_steps", type=int, default=1e8)
-    parser.add_argument("--num_processes", type=int, default=1)
+    parser.add_argument("--num_processes", type=int, default=2)
     parser.add_argument("--save_interval", type=int, default=500, help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=500, help="Maximum repetition steps in test phase")
     parser.add_argument("--log_path", type=str, default="tensorboard/a3c_icm_street_fighter")
@@ -44,8 +44,8 @@ def train(opt):
     if not os.path.isdir(opt.saved_path):
         os.makedirs(opt.saved_path)
     mp = _mp.get_context("spawn")
-    global_model = ActorCritic(num_inputs=1, num_actions=90) #change back to 130 later
-    global_icm = IntrinsicCuriosityModule(num_inputs=1, num_actions=90)
+    global_model = ActorCritic(num_inputs=2, num_actions=90) #change back to 130 later
+    global_icm = IntrinsicCuriosityModule(num_inputs=2, num_actions=90)
     if opt.use_gpu:
         global_model.cuda()
         global_icm.cuda()
@@ -56,9 +56,11 @@ def train(opt):
     processes = []
     for index in range(opt.num_processes):
         if index == 0:
-            process = mp.Process(target=local_train, args=(index, opt, global_model, global_icm, optimizer, True))
-        else:
-            process = mp.Process(target=local_train, args=(index, opt, global_model, global_icm, optimizer))
+            process = mp.Process(target=local_train, args=(index, 0, opt, global_model, global_icm, optimizer, True))
+        elif index % 2 == 1:
+            process = mp.Process(target=local_train, args=(index, 1, opt, global_model, global_icm, optimizer))
+        elif index % 2 == 0:
+            process = mp.Process(target=local_train, args=(index, 0, opt, global_model, global_icm, optimizer))
         process.start()
         processes.append(process)
     for process in processes:

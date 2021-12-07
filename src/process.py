@@ -12,12 +12,12 @@ from tensorboardX import SummaryWriter
 import timeit
 
 
-def local_train(index, opt, global_model, global_icm, optimizer, save=False):
+def local_train(index, player_flag, opt, global_model, global_icm, optimizer, save=False):
     torch.manual_seed(123 + index)
     if save:
         start_time = timeit.default_timer()
     writer = SummaryWriter(opt.log_path)
-    env, num_states, num_actions = create_train_env(index+1)
+    env, num_states, num_actions = create_train_env(index+1, player_flag)
     local_model = ActorCritic(num_states, num_actions)
     local_icm = IntrinsicCuriosityModule(num_states, num_actions)
     if opt.use_gpu:
@@ -62,7 +62,7 @@ def local_train(index, opt, global_model, global_icm, optimizer, save=False):
 
         for _ in range(opt.num_local_steps):
             curr_step += 1
-            logits, value, h_0, c_0 = local_model(state, h_0, c_0)
+            logits, value, h_0, c_0 = local_model(state, torch.tensor([player_flag]), h_0, c_0)
             policy = F.softmax(logits, dim=1)
             log_policy = F.log_softmax(logits, dim=1)
             entropy = -(policy * log_policy).sum(1, keepdim=True)
@@ -78,7 +78,7 @@ def local_train(index, opt, global_model, global_icm, optimizer, save=False):
             action_oh[0, action] = 1
             if opt.use_gpu:
                 action_oh = action_oh.cuda()
-            pred_logits, pred_phi, phi = local_icm(state, next_state, action_oh)
+            pred_logits, pred_phi, phi = local_icm(state, torch.tensor([player_flag]), next_state, action_oh)
             if opt.use_gpu:
                 inv_loss = inv_criterion(pred_logits, torch.tensor([action]).cuda())
             else:
@@ -110,7 +110,7 @@ def local_train(index, opt, global_model, global_icm, optimizer, save=False):
         if opt.use_gpu:
             R = R.cuda()
         if not (round_done or stage_done or game_done):
-            _, R, _, _ = local_model(state, h_0, c_0)
+            _, R, _, _ = local_model(state, torch.tensor([player_flag]), h_0, c_0)
 
         gae = torch.zeros((1, 1), dtype=torch.float)
         if opt.use_gpu:

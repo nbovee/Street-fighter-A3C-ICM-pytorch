@@ -33,13 +33,14 @@ def process_frame(frame):
 
 
 class StreetFighterEnv(object):
-    def __init__(self, index, monitor=None):
+    def __init__(self, index, player_flag, monitor=None):
         roms_path = "roms/"
         self.env = Environment("env{}".format(index), roms_path)
         if monitor:
             self.monitor = monitor
         else:
             self.monitor = None
+        self.player_flag = player_flag
         self.env.start()
 
     def step(self, action):
@@ -54,7 +55,10 @@ class StreetFighterEnv(object):
             frames = np.concatenate([process_frame(frame) for frame in frames], 0)[None, :, :, :].astype(np.float32)
         else:
             frames = np.zeros((self.env.frames_per_step, 1, 168, 168), dtype=np.float32) # previously 1 x 3 x 168 x 168 black images
-        reward = reward["P1"] # change for side switch
+        if self.player_flag == 0:
+            reward = reward["P1"]
+        else:
+            reward = reward["P2"]
         if stage_done:
             reward = 25
         elif game_done:
@@ -73,12 +77,12 @@ class StreetFighterEnv(object):
         return np.zeros((self.env.frames_per_step, 1, 168, 168), dtype=np.float32)
 
 
-def create_train_env(index, output_path=None):
-    num_inputs = 1  # RAISE FOR NEW INPUTS
+def create_train_env(index, player_flag, output_path=None):
+    num_inputs = 2  # RAISE FOR NEW INPUTS
     num_actions = 90  # 90 PREVIOUS 130 CURRENT
     if output_path:
         monitor = Monitor(384, 224, output_path)
     else:
         monitor = None
-    env = StreetFighterEnv(index, monitor)
+    env = StreetFighterEnv(index, monitor, player_flag)
     return env, num_inputs, num_actions

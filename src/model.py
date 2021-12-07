@@ -20,8 +20,10 @@ class BaseConv(nn.Module):
                                   nn.ReLU()
                                   )
 
-    def forward(self, x):
-        return self.conv(x)
+    def forward(self, x, player_flag):
+        x = self.conv(x)
+        p = self.conv(player_flag)
+        return torch.cat((x, p), 1)
 
 
 class ActorCritic(nn.Module):
@@ -44,8 +46,8 @@ class ActorCritic(nn.Module):
                 nn.init.constant_(module.bias_hh, 0)
 
     # include new inputs here
-    def forward(self, x, hx, cx):
-        x = self.conv(x)
+    def forward(self, x, player_flag, hx, cx):
+        x = self.conv(x, player_flag)
         hx, cx = self.lstm(x.view(x.size(0), -1), (hx, cx))
         return self.actor_linear(hx), self.critic_linear(hx), hx, cx
 
@@ -75,10 +77,11 @@ class IntrinsicCuriosityModule(nn.Module):
                 nn.init.constant_(module.bias, 0)
 
     # include new inputs here
-    def forward(self, state, next_state, action):
+    def forward(self, state, next_state, player_flag, action):
         state_ft = self.conv(state)
         next_state_ft = self.conv(next_state)
         state_ft = state_ft.view(-1, self.feature_size)
         next_state_ft = next_state_ft.view(-1, self.feature_size)
-        return self.inverse_net(torch.cat((state_ft, next_state_ft), 1)), self.forward_net(
-            torch.cat((state_ft, action), 1)), next_state_ft
+        player = self.conv(player_flag)
+        return self.inverse_net(torch.cat((state_ft, next_state_ft, player), 1)), self.forward_net(
+            torch.cat((state_ft, action, player), 1)), torch.cat((next_state_ft, player), 1)
